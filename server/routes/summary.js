@@ -1,9 +1,9 @@
-// routes/summary.js
-const express = require('express');
+import express from 'express';
+import Patient from '../models/Patient.js';
+import Staff from '../models/Staff.js';
+import Appointment from '../models/Appointment.js';
+
 const router = express.Router();
-const Patient = require('../models/Patient');
-const Staff = require('../models/Staff');
-const Appointment = require('../models/Appointment');
 
 router.get('/', async (req, res) => {
   try {
@@ -21,4 +21,4 @@ router.get('/', async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
