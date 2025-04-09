@@ -46,24 +46,16 @@ const Appointments = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    if (editingId) {
-      // Update flow
-      try {
+    try {
+      if (editingId) {
         await updateAppointment(editingId, form);
-        await getAllAppointments();
-        resetForm();
-      } catch (err) {
-        console.error("❌ Error updating appointment:", err);
-      }
-    } else {
-      // Create flow
-      try {
+      } else {
         await createAppointment(form);
-        await getAllAppointments();
-        resetForm();
-      } catch (error) {
-        console.error("❌ Error creating appointment:", error);
       }
+      await getAllAppointments();
+      resetForm();
+    } catch (error) {
+      console.error("❌ Error saving appointment:", error);
     }
   };
 
@@ -99,15 +91,16 @@ const Appointments = () => {
   };
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">📅 Appointments</h2>
+    <div className="p-6 max-w-4xl mx-auto">
+      <h2 className="text-3xl font-semibold mb-6">📅 Appointments</h2>
 
+      {/* Form */}
       <form
         onSubmit={handleSubmit}
-        className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"
+        className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-8 bg-white p-6 rounded-lg shadow"
       >
         <select
-          className="p-2 border rounded"
+          className="p-2 border border-gray-300 rounded"
           value={form.patientId}
           onChange={(e) => setForm({ ...form, patientId: e.target.value })}
           required
@@ -121,7 +114,7 @@ const Appointments = () => {
         </select>
 
         <select
-          className="p-2 border rounded"
+          className="p-2 border border-gray-300 rounded"
           value={form.doctorId}
           onChange={(e) => setForm({ ...form, doctorId: e.target.value })}
           required
@@ -129,27 +122,27 @@ const Appointments = () => {
           <option value="">Select Doctor</option>
           {doctors.map((d) => (
             <option key={d._id} value={d._id}>
-               {d.name} ({d.specialization || d.role || "General"})
+              {d.name} ({d.specialization || d.role || "General"})
             </option>
           ))}
         </select>
 
         <input
           type="date"
-          className="p-2 border rounded"
+          className="p-2 border border-gray-300 rounded"
           value={form.date}
           onChange={(e) => setForm({ ...form, date: e.target.value })}
           required
         />
         <input
           type="time"
-          className="p-2 border rounded"
+          className="p-2 border border-gray-300 rounded"
           value={form.time}
           onChange={(e) => setForm({ ...form, time: e.target.value })}
         />
 
         <input
-          className="p-2 border rounded col-span-2"
+          className="p-2 border border-gray-300 rounded col-span-1 md:col-span-2"
           placeholder="Reason"
           value={form.reason}
           onChange={(e) => setForm({ ...form, reason: e.target.value })}
@@ -157,29 +150,27 @@ const Appointments = () => {
 
         <button
           type="submit"
-          className={`col-span-2 ${
+          className={`col-span-1 md:col-span-2 ${
             editingId ? "bg-blue-600" : "bg-green-600"
-          } text-white py-2 px-4 rounded hover:opacity-90`}
+          } text-white py-2 px-4 rounded hover:opacity-90 transition`}
         >
-          {editingId ? "✅ Update Appointment" : "➕ Add Appointment"}
+          {editingId ? "✏️ Update Appointment" : "➕ Add Appointment"}
         </button>
       </form>
 
       {/* Appointments List */}
       <div>
-        <h3 className="text-xl font-semibold mb-2">Appointment List</h3>
-        <ul className="space-y-3">
+        <h3 className="text-2xl font-semibold mb-4">📋 Appointment List</h3>
+        <ul className="space-y-4">
           {appointments.length > 0 ? (
             appointments.map((appt) => (
               <li
                 key={appt._id}
-                className="p-4 border rounded shadow-sm bg-gray-50"
+                className="p-4 border border-gray-200 rounded-lg shadow bg-gray-50"
               >
-                <div className="mb-2">
-                  <strong>🧍 Patient:</strong> {appt.patientId?.name || "N/A"}
-                  <br />
-                  <strong>👨‍⚕️ Doctor:</strong> {appt.doctorId?.name || "N/A"}
-                  <br />
+                <div className="mb-3 text-sm text-gray-800">
+                  <strong>🧍 Patient:</strong> {appt.patientId?.name || "N/A"} <br />
+                  <strong>👨‍⚕️ Doctor:</strong> {appt.doctorId?.name || "N/A"} <br />
                   <strong>📅 Date:</strong>{" "}
                   {appt.date
                     ? new Date(appt.date).toLocaleDateString("en-GB", {
@@ -187,30 +178,30 @@ const Appointments = () => {
                         month: "short",
                         year: "numeric",
                       })
-                    : "N/A"}
+                    : "N/A"}{" "}
                   <br />
                   <strong>🕒 Time:</strong> {appt.time || "N/A"} <br />
                   <strong>📝 Reason:</strong> {appt.reason || "N/A"}
                 </div>
 
                 <div className="flex gap-2">
-                <button
-                    className="px-3 py-1 bg-yellow-300 hover:bg-yellow-400 text-gray-800 rounded transition"
-                    onClick={() => handleEdit(p)}
+                  <button
+                    className="px-3 py-1 bg-yellow-400 hover:bg-yellow-500 text-gray-900 rounded"
+                    onClick={() => handleEdit(appt)}
                   >
                     ✏️ Edit
                   </button>
                   <button
-                    className="px-3 py-1 bg-rose-300 hover:bg-rose-400 text-white rounded transition"
-                    onClick={() => handleDelete(p._id)}
+                    className="px-3 py-1 bg-rose-500 hover:bg-rose-600 text-white rounded"
+                    onClick={() => handleDelete(appt._id)}
                   >
-                     Delete
+                    Delete
                   </button>
                 </div>
               </li>
             ))
           ) : (
-            <p>No appointments found.</p>
+            <p className="text-gray-500">No appointments found.</p>
           )}
         </ul>
       </div>

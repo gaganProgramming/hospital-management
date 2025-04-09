@@ -87,13 +87,15 @@ const Patients = () => {
   };
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4 text-gray-700">🧍‍♂️ Patients</h2>
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold mb-4 text-gray-700 text-center sm:text-left">
+        🧍‍♂️ Patients
+      </h2>
 
       {/* FORM */}
       <form
         onSubmit={handleSubmit}
-        className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6"
+        className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6"
       >
         <input
           className="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-300"
@@ -123,18 +125,16 @@ const Patients = () => {
           onChange={(e) => setForm({ ...form, contact: e.target.value })}
         />
         <input
-          className="p-2 border border-gray-300 rounded col-span-2 focus:outline-none focus:ring-2 focus:ring-amber-300"
+          className="p-2 border border-gray-300 rounded col-span-1 sm:col-span-2 focus:outline-none focus:ring-2 focus:ring-amber-300"
           placeholder="Medical History (comma separated)"
           value={form.medicalHistory}
-          onChange={(e) =>
-            setForm({ ...form, medicalHistory: e.target.value })
-          }
+          onChange={(e) => setForm({ ...form, medicalHistory: e.target.value })}
         />
 
-        <div className="col-span-2 flex gap-4">
+        <div className="col-span-1 sm:col-span-2 flex flex-col sm:flex-row gap-3">
           <button
             type="submit"
-            className={`flex-1 ${
+            className={`w-full sm:w-auto ${
               editId
                 ? "bg-yellow-400 hover:bg-yellow-500"
                 : "bg-emerald-400 hover:bg-emerald-500"
@@ -146,7 +146,7 @@ const Patients = () => {
           {editId && (
             <button
               type="button"
-              className="flex-1 bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded transition"
+              className="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded transition"
               onClick={resetForm}
             >
               🔄 Cancel Edit
@@ -157,13 +157,15 @@ const Patients = () => {
 
       {/* LIST */}
       <div>
-        <h3 className="text-xl font-semibold mb-2 text-gray-700">Patient List</h3>
-        <ul className="space-y-2">
+        <h3 className="text-xl font-semibold mb-2 text-gray-700 text-center sm:text-left">
+          Patient List
+        </h3>
+        <ul className="space-y-3">
           {Array.isArray(patients) && patients.length > 0 ? (
             patients.map((p) => (
               <li
                 key={p._id}
-                className="p-3 border rounded shadow-sm bg-neutral-50 flex justify-between items-start flex-col md:flex-row md:items-center"
+                className="p-4 border rounded shadow-sm bg-neutral-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
               >
                 <div className="text-sm text-gray-700">
                   <strong className="text-base">{p.name}</strong> (Age: {p.age}, Gender: {p.gender})
@@ -172,7 +174,7 @@ const Patients = () => {
                   <br />
                   🏥 History: {p.medicalHistory?.join(", ") || "N/A"}
                 </div>
-                <div className="flex space-x-2 mt-3 md:mt-0">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
                   <button
                     className="px-3 py-1 bg-yellow-300 hover:bg-yellow-400 text-gray-800 rounded transition"
                     onClick={() => handleEdit(p)}
@@ -183,13 +185,13 @@ const Patients = () => {
                     className="px-3 py-1 bg-rose-300 hover:bg-rose-400 text-white rounded transition"
                     onClick={() => handleDelete(p._id)}
                   >
-                     Delete
+                    Delete
                   </button>
                 </div>
               </li>
             ))
           ) : (
-            <p className="text-gray-600">No patients found.</p>
+            <p className="text-gray-600 text-center">No patients found.</p>
           )}
         </ul>
       </div>

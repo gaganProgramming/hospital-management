@@ -1,4 +1,3 @@
-// Staff.jsx
 import { useEffect, useState } from "react";
 import {
   fetchStaff,
@@ -78,6 +77,8 @@ const Staff = () => {
   };
 
   const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this staff member?");
+    if (!confirmDelete) return;
     try {
       await deleteStaff(id);
       await getAllStaff();
@@ -87,21 +88,24 @@ const Staff = () => {
   };
 
   return (
-    <div className="p-6 max-w-3xl mx-auto">
-      <h2 className="text-2xl font-bold mb-4">👨‍⚕️ Staff Management</h2>
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold mb-4 text-center sm:text-left">👨‍⚕️ Staff Management</h2>
 
-      <form onSubmit={handleSubmit} className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+      {/* Form */}
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6"
+      >
         <input
-          className="p-2 border rounded"
+          className="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
           placeholder="Name"
           value={form.name}
           onChange={(e) => setForm({ ...form, name: e.target.value })}
           required
         />
 
-        {/* Role Dropdown */}
         <select
-          className="p-2 border rounded"
+          className="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
           value={form.role}
           onChange={(e) => setForm({ ...form, role: e.target.value })}
           required
@@ -115,14 +119,14 @@ const Staff = () => {
         </select>
 
         <input
-          className="p-2 border rounded"
+          className="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
           placeholder="Department"
           value={form.department}
           onChange={(e) => setForm({ ...form, department: e.target.value })}
         />
 
         <input
-          className="p-2 border rounded"
+          className="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-blue-300"
           placeholder="Contact"
           value={form.contact}
           onChange={(e) => setForm({ ...form, contact: e.target.value })}
@@ -130,50 +134,68 @@ const Staff = () => {
 
         <input
           type="date"
-          className="p-2 border rounded col-span-2"
+          className="p-2 border border-gray-300 rounded col-span-1 sm:col-span-2 focus:outline-none focus:ring-2 focus:ring-blue-300"
           value={form.joinedDate}
           onChange={(e) => setForm({ ...form, joinedDate: e.target.value })}
         />
 
-        <button
-          type="submit"
-          className="col-span-2 bg-green-600 text-white py-2 px-4 rounded hover:bg-green-700"
-        >
-          {editingId ? "✏️ Update Staff" : "➕ Add Staff"}
-        </button>
+        <div className="col-span-1 sm:col-span-2 flex flex-col sm:flex-row gap-3">
+          <button
+            type="submit"
+            className="w-full sm:w-auto bg-green-600 hover:bg-green-700 text-white py-2 px-4 rounded transition"
+          >
+            {editingId ? "✏️ Update Staff" : "➕ Add Staff"}
+          </button>
+          {editingId && (
+            <button
+              type="button"
+              className="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-800 py-2 px-4 rounded transition"
+              onClick={resetForm}
+            >
+              🔄 Cancel
+            </button>
+          )}
+        </div>
       </form>
 
+      {/* List */}
       <div>
-        <h3 className="text-xl font-semibold mb-2">👥 Staff List</h3>
-        <ul className="space-y-2">
+        <h3 className="text-xl font-semibold mb-2 text-center sm:text-left">👥 Staff List</h3>
+        <ul className="space-y-3">
           {staffList.length > 0 ? (
             staffList.map((staff) => (
-              <li key={staff._id} className="p-3 border rounded shadow-sm">
-                <strong>{staff.name}</strong> - {staff.role} in {staff.department} <br />
-                📞 {staff.contact} <br />
-                🗓️ Joined:{" "}
-                {staff.joinedDate
-                  ? new Date(staff.joinedDate).toLocaleDateString()
-                  : "N/A"}{" "}
-                <br />
-                <div className="flex gap-2 mt-2">
-                <button
+              <li
+                key={staff._id}
+                className="p-4 border rounded shadow-sm bg-neutral-50 flex flex-col sm:flex-row sm:justify-between gap-3"
+              >
+                <div className="text-sm text-gray-700">
+                  <strong className="text-base">{staff.name}</strong> - {staff.role} in {staff.department}
+                  <br />
+                  📞 {staff.contact}
+                  <br />
+                  🗓️ Joined:{" "}
+                  {staff.joinedDate
+                    ? new Date(staff.joinedDate).toLocaleDateString()
+                    : "N/A"}
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2">
+                  <button
                     className="px-3 py-1 bg-yellow-300 hover:bg-yellow-400 text-gray-800 rounded transition"
-                    onClick={() => handleEdit(p)}
+                    onClick={() => handleEdit(staff)}
                   >
                     ✏️ Edit
                   </button>
                   <button
                     className="px-3 py-1 bg-rose-300 hover:bg-rose-400 text-white rounded transition"
-                    onClick={() => handleDelete(p._id)}
+                    onClick={() => handleDelete(staff._id)}
                   >
-                     Delete
+                   Delete
                   </button>
                 </div>
               </li>
             ))
           ) : (
-            <p>No staff found.</p>
+            <p className="text-center text-gray-600">No staff found.</p>
           )}
         </ul>
       </div>

@@ -9,11 +9,13 @@ import Appointments from "./pages/Appointments";
 import Finance from "./pages/Finance";
 import Login from "./pages/Login"; // ✅ Use your Login page
 import PrivateRoute from "./components/PrivateRoute";
+import Welcome from "./pages/Welcome";
 
 const App = () => {
   return (
     <Router>
       <Routes>
+      <Route path="/" element={<Welcome />} />
         <Route path="/" element={<Layout />}>
           <Route index element={<Home />} />
           <Route path="patients" element={<PrivateRoute><Patients /></PrivateRoute>} />
@@ -21,6 +23,7 @@ const App = () => {
           <Route path="appointments" element={<PrivateRoute><Appointments /></PrivateRoute>} />
           <Route path="finance" element={<PrivateRoute><Finance /></PrivateRoute>} />
           <Route path="login" element={<Login />} /> {/* ✅ Keep login public */}
+          
         </Route>
       </Routes>
     </Router>

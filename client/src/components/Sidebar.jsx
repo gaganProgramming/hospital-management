@@ -1,4 +1,3 @@
-// src/components/Sidebar.jsx
 import React from "react";
 import { NavLink } from "react-router-dom";
 import {
@@ -6,19 +5,25 @@ import {
   FaUserMd,
   FaCalendarCheck,
   FaHome,
-  FaMoneyBillWave 
+  FaMoneyBillWave,
 } from "react-icons/fa";
-import "tailwindcss";
 
-const Sidebar = () => {
+const Sidebar = ({ showMobile }) => {
   const linkClasses = ({ isActive }) =>
-    `flex items-center gap-3 px-4 py-2 rounded-md hover:bg-blue-100 ${
-      isActive ? "bg-blue-200 font-semibold text-blue-800" : "text-gray-700"
+    `flex items-center gap-3 px-4 py-2 rounded-md transition-colors ${
+      isActive
+        ? "bg-blue-200 font-semibold text-blue-800"
+        : "text-gray-700 hover:bg-blue-100"
     }`;
 
   return (
-    <aside className="w-64 min-h-screen bg-white shadow-md p-4">
-      <nav className="flex flex-col gap-3">
+    <aside
+      className={`${
+        showMobile ? "block" : "hidden"
+      } md:block w-64 min-h-screen bg-white shadow-md p-6`}
+    >
+      <h2 className="text-xl font-bold text-gray-800 mb-6">📋 Menu</h2>
+      <nav className="flex flex-col gap-2">
         <NavLink to="/" className={linkClasses}>
           <FaHome /> Home
         </NavLink>
