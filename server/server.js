@@ -10,29 +10,43 @@ import summaryRoutes from "./routes/summary.js";
 import dashboardRoutes from "./routes/dashboard.js";
 import financeRoutes from "./routes/finance.js";
 import billingRoutes from "./routes/billing.js";
-import authRoutes from "./routes/auth.js"; // 👈 Add this route
+import authRoutes from "./routes/auth.js";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// CORS Middleware ✅ for frontend communication
+// ✅ Setup dynamic allowed origins (add your frontend URL here)
+const allowedOrigins = [
+  "http://localhost:5173",
+  "https://hospital-management-git-master-gagans-projects-8d9b2a14.vercel.app/"
+];
+
+// ✅ CORS middleware with whitelist logic
 app.use(cors({
-  origin: "http://localhost:5173", // frontend URL
-  credentials: true,               // to allow cookies / headers if needed
+  origin: function (origin, callback) {
+    // allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true
 }));
 
-// JSON Body Parser
+// Parse JSON bodies
 app.use(express.json());
 
-// MongoDB Connection
+// ✅ MongoDB connection
 mongoose
   .connect(process.env.MONGODB_URI)
   .then(() => console.log("✅ MongoDB connected"))
   .catch((err) => console.error("❌ MongoDB error:", err));
 
-// Routes
+// ✅ Routes
 app.use("/api/patients", patientRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/staff", staffRoutes);
@@ -40,14 +54,14 @@ app.use("/api/summary", summaryRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/finance", financeRoutes);
 app.use("/api/billing", billingRoutes);
-app.use("/api/auth", authRoutes); // 👈 Add auth route
+app.use("/api/auth", authRoutes);
 
-// Root Endpoint
+// Root
 app.get("/", (req, res) => {
   res.send("🏥 Hospital Management API Running...");
 });
 
-// Server Start
+// Start server
 app.listen(PORT, () =>
   console.log(`🚀 Server running at: http://localhost:${PORT}`)
 );
