@@ -20,7 +20,7 @@ const PORT = process.env.PORT || 5000;
 // ✅ Setup dynamic allowed origins (add your frontend URL here)
 const allowedOrigins = [
   "http://localhost:5173",
-  "https://hospital-management-git-master-gagans-projects-8d9b2a14.vercel.app/"
+  "https://hospital-management-delta-jet.vercel.app/"
 ];
 
 // ✅ CORS middleware with whitelist logic
