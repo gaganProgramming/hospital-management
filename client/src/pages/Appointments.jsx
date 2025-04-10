@@ -29,15 +29,18 @@ const Appointments = () => {
     }
   };
 
+  const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+  
   useEffect(() => {
     getAllAppointments();
 
-    fetch("http://localhost:10000/api/patients")
+    fetch(`${API_BASE_URL}/api/patients`)
       .then((res) => res.json())
       .then((data) => setPatients(data))
       .catch((err) => console.error("❌ Error fetching patients:", err));
 
-    fetch("http://localhost:10000/api/staff?role=Doctor")
+    fetch(`${API_BASE_URL}/api/staff?role=Doctor`)
       .then((res) => res.json())
       .then((data) => setDoctors(data))
       .catch((err) => console.error("❌ Error fetching doctors:", err));

@@ -2,6 +2,9 @@
 import React, { useEffect, useState } from "react";
 import SummaryCard from "../components/SummaryCard";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
+
 export default function Home() {
   const [dashboardData, setDashboardData] = useState(null);
   const [revenue, setRevenue] = useState(0);
@@ -15,7 +18,7 @@ export default function Home() {
 
   const fetchDashboardData = async () => {
     try {
-      const res = await fetch("http://localhost:10000/api/dashboard");
+      const res = await fetch(`${API_BASE_URL}/api/dashboard`);
       const data = await res.json();
       setDashboardData(data);
     } catch (err) {
@@ -26,7 +29,7 @@ export default function Home() {
 
   const fetchRevenue = async () => {
     try {
-      const res = await fetch("http://localhost:10000/api/billing/summary");
+      const res = await fetch(`${API_BASE_URL}/api/billing/summary`);
       const data = await res.json();
       setRevenue(data?.paymentsReceived || 0);
     } catch (err) {

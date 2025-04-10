@@ -3,6 +3,10 @@ import mongoose from "mongoose";
 import dotenv from "dotenv";
 import cors from "cors";
 
+// 🌐 Load environment variables
+dotenv.config();
+
+// 🛠 Routes
 import patientRoutes from "./routes/patients.js";
 import appointmentRoutes from "./routes/appointments.js";
 import staffRoutes from "./routes/staff.js";
@@ -12,42 +16,44 @@ import financeRoutes from "./routes/finance.js";
 import billingRoutes from "./routes/billing.js";
 import authRoutes from "./routes/auth.js";
 
-dotenv.config();
-
+// ⚙️ App Configuration
 const app = express();
 const PORT = process.env.PORT || 5000;
 
-// ✅ Setup dynamic allowed origins (add your frontend URL here)
+// 🌍 Allowed Frontend Origins (update with your deployed frontend domain)
 const allowedOrigins = [
-  "https://hospital-management-delta-jet.vercel.app/",
+  "https://hospital-management-delta-jet.vercel.app",
   "http://localhost:5173"
-  
 ];
 
-// ✅ CORS middleware with whitelist logic
+// 🔐 CORS Middleware
 app.use(cors({
   origin: function (origin, callback) {
-    // allow requests with no origin (like mobile apps or curl)
-    if (!origin) return callback(null, true);
-    if (allowedOrigins.includes(origin)) {
-      return callback(null, true);
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
     } else {
-      return callback(new Error("Not allowed by CORS"));
+      console.error("❌ Blocked by CORS:", origin);
+      callback(new Error("Not allowed by CORS"));
     }
   },
-  credentials: true
+  credentials: true,
 }));
 
-// Parse JSON bodies
-app.use(express.json());
+// 📦 Middleware
+app.use(express.json()); // Parses incoming JSON requests
 
-// ✅ MongoDB connection
-mongoose
-  .connect(process.env.MONGODB_URI)
-  .then(() => console.log("✅ MongoDB connected"))
-  .catch((err) => console.error("❌ MongoDB error:", err));
+// 🔌 Connect to MongoDB
+mongoose.connect(process.env.MONGODB_URI, {
+  useNewUrlParser: true,
+  useUnifiedTopology: true
+})
+.then(() => console.log("✅ MongoDB connected successfully"))
+.catch((err) => {
+  console.error("❌ MongoDB connection error:", err);
+  process.exit(1); // Exit the app if DB fails
+});
 
-// ✅ Routes
+// 🛣 API Routes
 app.use("/api/patients", patientRoutes);
 app.use("/api/appointments", appointmentRoutes);
 app.use("/api/staff", staffRoutes);
@@ -57,12 +63,12 @@ app.use("/api/finance", financeRoutes);
 app.use("/api/billing", billingRoutes);
 app.use("/api/auth", authRoutes);
 
-// Root
+// 🏠 Root route
 app.get("/", (req, res) => {
-  res.send("🏥 Hospital Management API Running...");
+  res.send("🏥 Hospital Management API is live!");
 });
 
-// Start server
-app.listen(PORT, () =>
-  console.log(`🚀 Server running at: http://localhost:${PORT}`)
-);
+// 🚀 Start Server
+app.listen(PORT, () => {
+  console.log(`🚀 Server is running on port: ${PORT}`);
+});

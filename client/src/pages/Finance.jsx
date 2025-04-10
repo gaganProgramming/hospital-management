@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL;
+
 const FinanceCard = ({ title, value, icon }) => (
   <div className="flex items-center bg-white p-4 rounded-xl shadow hover:shadow-md transition">
     <div className="text-blue-600 text-3xl mr-4">{icon}</div>
@@ -27,14 +29,14 @@ export default function Finance() {
   }, []);
 
   const fetchSummary = () => {
-    fetch("http://localhost:10000/api/billing/summary")
+    fetch(`${API_BASE_URL}/api/billing/summary`)
       .then((res) => res.json())
       .then((data) => setBillingSummary(data))
       .catch((err) => console.error("Failed to fetch billing summary", err));
   };
 
   const fetchPatients = () => {
-    fetch("http://localhost:10000/api/patients")
+    fetch(`${API_BASE_URL}/api/patients`)
       .then((res) => res.json())
       .then((data) => setPatients(data))
       .catch((err) => console.error("Failed to fetch patients", err));
@@ -50,7 +52,7 @@ export default function Finance() {
     setMessage("");
 
     try {
-      const res = await fetch("http://localhost:10000/api/billing", {
+      const res = await fetch(`${API_BASE_URL}/api/billing`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
