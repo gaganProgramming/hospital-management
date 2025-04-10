@@ -1,135 +1,214 @@
-import React, { useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL;
-
-export default function Patient() {
+const Patients = () => {
   const [patients, setPatients] = useState([]);
-  const [formData, setFormData] = useState({
+  const [form, setForm] = useState({
     name: "",
     age: "",
-    gender: "Male",
+    gender: "",
     contact: "",
+    medicalHistory: "",
   });
-  const [message, setMessage] = useState("");
+  const [editId, setEditId] = useState(null);
+
+  const API_URL = "http://localhost:10000/api/patients";
 
   useEffect(() => {
-    fetchPatients();
+    getAllPatients();
   }, []);
 
-  const fetchPatients = () => {
-    fetch(`${API_BASE_URL}/api/patients`)
-      .then((res) => res.json())
-      .then((data) => setPatients(data))
-      .catch((err) => console.error("❌ Failed to fetch patients", err));
-  };
-
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({ ...prev, [name]: value }));
+  const getAllPatients = async () => {
+    try {
+      const res = await fetch(API_URL);
+      const data = await res.json();
+      setPatients(data);
+    } catch (error) {
+      console.error("❌ Error fetching patients:", error);
+    }
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setMessage("");
+
+    const patientData = {
+      ...form,
+      medicalHistory: form.medicalHistory
+        .split(",")
+        .map((item) => item.trim())
+        .filter(Boolean),
+    };
 
     try {
-      const res = await fetch(`${API_BASE_URL}/api/patients`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        credentials: "include",
-        body: JSON.stringify(formData),
-      });
-
-      if (res.ok) {
-        setMessage("✅ Patient added successfully!");
-        setFormData({ name: "", age: "", gender: "Male", contact: "" });
-        fetchPatients();
+      if (editId) {
+        // Update patient
+        await fetch(`${API_URL}/${editId}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(patientData),
+        });
       } else {
-        const data = await res.json();
-        setMessage(`❌ ${data.message || "Failed to add patient"}`);
+        // Create patient
+        await fetch(API_URL, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(patientData),
+        });
       }
+
+      await getAllPatients();
+      resetForm();
     } catch (err) {
-      console.error(err);
-      setMessage("❌ Error while adding patient");
+      console.error("❌ Error submitting form:", err);
     }
   };
 
+  const handleEdit = (patient) => {
+    setForm({
+      name: patient.name,
+      age: patient.age,
+      gender: patient.gender,
+      contact: patient.contact,
+      medicalHistory: (patient.medicalHistory || []).join(", "),
+    });
+    setEditId(patient._id);
+  };
+
+  const handleDelete = async (id) => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this patient?");
+    if (!confirmDelete) return;
+
+    try {
+      await fetch(`${API_URL}/${id}`, {
+        method: "DELETE",
+      });
+      await getAllPatients();
+    } catch (err) {
+      console.error("❌ Error deleting patient:", err);
+    }
+  };
+
+  const resetForm = () => {
+    setForm({
+      name: "",
+      age: "",
+      gender: "",
+      contact: "",
+      medicalHistory: "",
+    });
+    setEditId(null);
+  };
+
   return (
-    <div className="p-6 space-y-8">
-      <h1 className="text-3xl font-semibold">Patients</h1>
+    <div className="p-4 sm:p-6 max-w-4xl mx-auto">
+      <h2 className="text-2xl font-bold mb-4 text-gray-700 text-center sm:text-left">
+        🧍‍♂️ Patients
+      </h2>
 
-      {/* Message */}
-      {message && (
-        <div className={`font-medium ${message.startsWith("✅") ? "text-green-600" : "text-red-600"}`}>
-          {message}
-        </div>
-      )}
+      {/* FORM */}
+      <form
+        onSubmit={handleSubmit}
+        className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-6"
+      >
+        <input
+          className="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-300"
+          placeholder="Name"
+          value={form.name}
+          onChange={(e) => setForm({ ...form, name: e.target.value })}
+          required
+        />
+        <input
+          className="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-300"
+          placeholder="Age"
+          value={form.age}
+          onChange={(e) => setForm({ ...form, age: e.target.value })}
+          required
+        />
+        <input
+          className="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-300"
+          placeholder="Gender"
+          value={form.gender}
+          onChange={(e) => setForm({ ...form, gender: e.target.value })}
+          required
+        />
+        <input
+          className="p-2 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-amber-300"
+          placeholder="Contact"
+          value={form.contact}
+          onChange={(e) => setForm({ ...form, contact: e.target.value })}
+        />
+        <input
+          className="p-2 border border-gray-300 rounded col-span-1 sm:col-span-2 focus:outline-none focus:ring-2 focus:ring-amber-300"
+          placeholder="Medical History (comma separated)"
+          value={form.medicalHistory}
+          onChange={(e) => setForm({ ...form, medicalHistory: e.target.value })}
+        />
 
-      {/* Form */}
-      <div className="bg-white p-6 rounded-xl shadow max-w-2xl">
-        <h2 className="text-xl font-semibold mb-4">Add New Patient</h2>
-        <form onSubmit={handleSubmit} className="space-y-5">
-          <input
-            type="text"
-            name="name"
-            value={formData.name}
-            placeholder="Patient Name"
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded p-2"
-            required
-          />
-          <input
-            type="number"
-            name="age"
-            value={formData.age}
-            placeholder="Age"
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded p-2"
-            required
-          />
-          <select
-            name="gender"
-            value={formData.gender}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded p-2"
-          >
-            <option value="Male">Male</option>
-            <option value="Female">Female</option>
-            <option value="Other">Other</option>
-          </select>
-          <input
-            type="text"
-            name="contact"
-            value={formData.contact}
-            placeholder="Contact Number"
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded p-2"
-            required
-          />
+        <div className="col-span-1 sm:col-span-2 flex flex-col sm:flex-row gap-3">
           <button
             type="submit"
-            className="w-full bg-blue-600 text-white py-2 rounded hover:bg-blue-700 transition"
+            className={`w-full sm:w-auto ${
+              editId
+                ? "bg-yellow-400 hover:bg-yellow-500"
+                : "bg-emerald-400 hover:bg-emerald-500"
+            } text-white py-2 px-4 rounded transition`}
           >
-            Add Patient
+            {editId ? "✏️ Update Patient" : "➕ Add Patient"}
           </button>
-        </form>
-      </div>
 
-      {/* List */}
-      <div className="bg-white p-6 rounded-xl shadow">
-        <h2 className="text-xl font-semibold mb-4">Patient List</h2>
-        <ul className="divide-y">
-          {patients.length === 0 ? (
-            <p className="text-gray-500">No patients found.</p>
-          ) : (
+          {editId && (
+            <button
+              type="button"
+              className="w-full sm:w-auto bg-gray-300 hover:bg-gray-400 text-gray-700 py-2 px-4 rounded transition"
+              onClick={resetForm}
+            >
+              🔄 Cancel Edit
+            </button>
+          )}
+        </div>
+      </form>
+
+      {/* LIST */}
+      <div>
+        <h3 className="text-xl font-semibold mb-2 text-gray-700 text-center sm:text-left">
+          Patient List
+        </h3>
+        <ul className="space-y-3">
+          {Array.isArray(patients) && patients.length > 0 ? (
             patients.map((p) => (
-              <li key={p._id} className="py-3">
-                <span className="font-medium">{p.name}</span> — {p.age} years, {p.gender}, 📞 {p.contact}
+              <li
+                key={p._id}
+                className="p-4 border rounded shadow-sm bg-neutral-50 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3"
+              >
+                <div className="text-sm text-gray-700">
+                  <strong className="text-base">{p.name}</strong> (Age: {p.age}, Gender: {p.gender})
+                  <br />
+                  📞 {p.contact}
+                  <br />
+                  🏥 History: {p.medicalHistory?.join(", ") || "N/A"}
+                </div>
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-4">
+                  <button
+                    className="px-3 py-1 bg-yellow-300 hover:bg-yellow-400 text-gray-800 rounded transition"
+                    onClick={() => handleEdit(p)}
+                  >
+                    ✏️ Edit
+                  </button>
+                  <button
+                    className="px-3 py-1 bg-rose-300 hover:bg-rose-400 text-white rounded transition"
+                    onClick={() => handleDelete(p._id)}
+                  >
+                    Delete
+                  </button>
+                </div>
               </li>
             ))
+          ) : (
+            <p className="text-gray-600 text-center">No patients found.</p>
           )}
         </ul>
       </div>
     </div>
   );
-}
+};
+
+export default Patients;
