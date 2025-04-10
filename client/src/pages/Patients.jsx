@@ -11,7 +11,8 @@ const Patients = () => {
   });
   const [editId, setEditId] = useState(null);
 
-  const API_URL = "http://localhost:10000/api/patients";
+
+  const API_URL = import.meta.env.VITE_API_URL;
 
   useEffect(() => {
     getAllPatients();
